@@ -1,0 +1,59 @@
+# GPIO for status LED (Blink button on gateway dashboard). -1 to disable.
+config SENSOR_LED_GPIO
+    int "LED GPIO for blink command (e.g. 21 for ESP32-S3 built-in)"
+    default -1
+    range -1 48
+    help
+        GPIO number for the node LED. Gateway dashboard "Blink" sends
+        ESP-NOW command to blink this LED. Set to -1 to disable.
+
+config SENSOR_BLE_LOG_ENABLE
+    bool "Enable BLE device logging"
+    default y
+    help
+        When enabled, the sensor unit scans for nearby BLE devices and logs
+        their addresses and RSSI.
+
+# Motion sensor input (RCWL-0516).
+config SENSOR_MOTION_GPIO
+    int "Motion sensor GPIO (RCWL-0516 OUT). -1 to disable"
+    default 0
+    range -1 48
+    help
+        GPIO number for the motion sensor OUT pin. Set to -1 to disable.
+
+# BME680 I2C wiring (D4/D5 in ESP-Motion example).
+config SENSOR_BME_I2C_PORT
+    int "BME680 I2C port"
+    default 0
+    range 0 1
+    help
+        ESP-IDF I2C port used for BME680.
+
+config SENSOR_BME_I2C_SDA_GPIO
+    int "BME680 I2C SDA GPIO. -1 to disable"
+    default 22
+    range -1 48
+    help
+        GPIO number for BME680 SDA. Set to -1 to disable BME680.
+
+config SENSOR_BME_I2C_SCL_GPIO
+    int "BME680 I2C SCL GPIO. -1 to disable"
+    default 23
+    range -1 48
+    help
+        GPIO number for BME680 SCL. Set to -1 to disable BME680.
+
+config SENSOR_BME_I2C_FREQ_HZ
+    int "BME680 I2C frequency (Hz)"
+    default 100000
+    range 10000 1000000
+    help
+        I2C clock frequency for BME680.
+
+config SENSOR_BME_I2C_ADDR
+    hex "BME680 I2C address (0x76 or 0x77)"
+    default 0x77
+    range 0x76 0x77
+    help
+        I2C address for the BME680 sensor.

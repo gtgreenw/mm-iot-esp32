@@ -1,0 +1,51 @@
+CONFIG_LWIP_NETIF_STATUS_CALLBACK=y
+CONFIG_LWIP_IP_FORWARD=y
+CONFIG_LWIP_IPV4_NAPT=y
+# Required for NAPT to work on ESP (see lwip/port/include/lwipopts.h)
+CONFIG_LWIP_L2_TO_L3_COPY=y
+CONFIG_LWIP_IPV6_AUTOCONFIG=y
+CONFIG_LWIP_IPV6_DHCP6=y
+
+CONFIG_FREERTOS_HZ=1000
+CONFIG_PM_ENABLE=n
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=n
+
+# We increase this from its default priority of 1 so that the FreeRTOS timer service will be a
+# higher priority than any of the thread created by MMOSAL (i.e. higher priority than
+# MMOSAL_TASK_PRI_HIGH). See "Timers" section in the Morse Micro Operating System Abstraction Layer
+# (mmosal) API docs.
+CONFIG_FREERTOS_TIMER_TASK_PRIORITY=10
+
+CONFIG_IDF_TARGET="esp32s3"
+
+# SPI in IRAM for lower latency (HaLow SPI to MM6108)
+CONFIG_SPI_MASTER_IN_IRAM=y
+CONFIG_SPI_MASTER_ISR_IN_IRAM=y
+CONFIG_SPI_SLAVE_IN_IRAM=n
+CONFIG_SPI_SLAVE_ISR_IN_IRAM=n
+
+CONFIG_LWIP_IRAM_OPTIMIZATION=y
+CONFIG_LWIP_TCP_MSS=1460
+# TCP window/buffer: helps both directions; recv/tcpip mbox give NAPT headroom for download bursts.
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=120000
+CONFIG_LWIP_TCP_WND_DEFAULT=120000
+CONFIG_LWIP_TCP_RECVMBOX_SIZE=48
+CONFIG_LWIP_TCPIP_RECVMBOX_SIZE=96
+CONFIG_LWIP_UDP_RECVMBOX_SIZE=24
+
+# Use 8MB flash with custom partitions
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
+
+CONFIG_MBEDTLS_NIST_KW_C=y
+
+# App main task stack (avoid stack overflow in app_main)
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=6144
+CONFIG_MAIN_TASK_STACK_SIZE=6144
+
+# Allow modern browsers' long request headers (Sec-CH-UA, etc.)
+CONFIG_HTTPD_MAX_REQ_HDR_LEN=2048
+CONFIG_HTTPD_MAX_URI_LEN=512

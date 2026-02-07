@@ -1,0 +1,29 @@
+-- MMIOT_ROOT: /Users/Gavin/esp/mm-iot-esp32
+-- Found Git: /usr/bin/git (found version "2.39.5 (Apple Git-154)")
+-- Component directory /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/components/bme68x does not contain a CMakeLists.txt file. No component will be added
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /Users/Gavin/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin/riscv32-esp-elf-gcc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Users/Gavin/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin/riscv32-esp-elf-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/Gavin/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin/riscv32-esp-elf-g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Building ESP-IDF components for target esp32c6
+NOTICE: Manifest files have changed, solving dependencies.
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/mm_shims for dependency "mm_shims", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/src/mmipal for dependency "mmipal", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/src/mmutils for dependency "mmutils", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/morselib for dependency "morselib", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+......NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/mm_shims for dependency "mm_shims", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/src/mmipal for dependency "mmipal", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/src/mmutils for dependency "mmutils", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+NOTICE: Using component placed at /Users/Gavin/esp/mm-iot-esp32/framework/morselib for dependency "morselib", specified in /Users/Gavin/esp/mm-iot-esp32/examples/halow_good/sensor_unit/main/idf_component.yml
+......HINT: Please check manifest file of the following component(s): main
+-- Configuring incomplete, errors occurred!

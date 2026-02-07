@@ -1,0 +1,14 @@
+CMake Error at /Users/Gavin/esp/esp-idf/tools/cmake/build.cmake:540 (message):
+  ERROR: Version solving failed:
+
+      - no versions of morselib match *
+      - project depends on morselib (*)
+
+  Result: Because project depends on morselib (*) which doesn't match any
+  versions, version solving failed.
+
+Call Stack (most recent call first):
+  /Users/Gavin/esp/esp-idf/tools/cmake/project.cmake:547 (idf_build_process)
+  CMakeLists.txt:21 (project)
+
+

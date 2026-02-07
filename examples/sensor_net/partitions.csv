@@ -1,0 +1,6 @@
+# Name,   Type, SubType, Offset,  Size, Flags
+# 8MB flash: larger app for networking features + data partition for logs
+nvs,      data, nvs,     0x9000,  0x10000,
+phy_init, data, phy,     ,        0x1000,
+factory,  app,  factory, ,        0x600000,
+storage,  data, spiffs,  ,        0x1E0000,
