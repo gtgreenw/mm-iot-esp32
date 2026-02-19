@@ -1,0 +1,44 @@
+# Gateway camera and audio options removed; no camera or audio code in this build.
+
+menu "Sensor Net Gateway"
+
+config SENSOR_NET_HALOW_ENABLED
+    bool "Enable HaLow backhaul by default"
+    default y
+    help
+        When enabled, the gateway uses HaLow for backhaul by default.
+        When disabled, the gateway uses 2.4 GHz Wi-Fi only by default.
+        This can be changed at runtime via the Settings web UI (http://192.168.4.1/settings).
+
+config SENSOR_NET_PERFORMANCE_MODE
+    bool "Performance mode: settings page and network only"
+    default n
+    help
+        When enabled, only the settings web page and network components
+        (HaLow, WiFi STA, 2.4 GHz AP) are built. Dashboard, ESP-NOW,
+        iperf3, sensor gateway, time sync, and weather are excluded
+        (not just hidden) to reduce RAM and CPU usage.
+
+config SENSOR_NET_HOMEKIT
+    bool "Enable Apple HomeKit bridge"
+    default n
+    help
+        Expose sensor nodes as HomeKit accessories (Temperature, Humidity, Motion)
+        via the esp-homekit-sdk. The gateway appears as one Bridge in the Home app.
+        Requires esp-homekit-sdk cloned in examples/sensor_net/esp-homekit-sdk.
+
+config SENSOR_NET_HOMEKIT_SETUP_CODE
+    string "HomeKit setup code (xxx-xx-xxx)"
+    default "111-22-333"
+    depends on SENSOR_NET_HOMEKIT
+    help
+        Setup code for pairing in the Home app. For production use factory NVS.
+
+config SENSOR_NET_HOMEKIT_SETUP_ID
+    string "HomeKit setup ID (4 characters)"
+    default "SN01"
+    depends on SENSOR_NET_HOMEKIT
+    help
+        Setup ID for pairing (e.g. shown in QR code).
+
+endmenu

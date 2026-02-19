@@ -1,0 +1,7 @@
+#
+# ESP32S3-specific
+#
+CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB=y
+
+# PSRAM enable (S3-specific gate; full config is in sdkconfig.defaults)
+CONFIG_ESP32S3_SPIRAM_SUPPORT=y

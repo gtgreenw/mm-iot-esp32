@@ -1,0 +1,2 @@
+# C6 build: XIAO ESP32-C6 user LED on GPIO 15 (overrides base defaults)
+CONFIG_SENSOR_LED_GPIO=15

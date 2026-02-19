@@ -1,0 +1,3 @@
+# ESP-NOW-only sensor unit (no HaLow). Uses local bme68x and bit-bang ds18b20 (RMT fails on XIAO C6).
+dependencies:
+  idf: ">=5.1.0"

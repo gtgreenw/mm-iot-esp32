@@ -1,0 +1,13 @@
+# Clangd index and build artifacts
+.cache/
+build/
+build_*/
+
+# Embedded / third-party (add as submodule if needed)
+esp-homekit-sdk/
+
+# ESP-IDF generated
+managed_components/
+sdkconfig
+sdkconfig.old
+dependencies.lock

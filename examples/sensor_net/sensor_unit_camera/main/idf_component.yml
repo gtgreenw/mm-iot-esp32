@@ -1,0 +1,13 @@
+# mm-iot-esp32 framework + esp32-camera for XIAO ESP32-S3-Sense
+dependencies:
+  idf: ">=5.1.0"
+  mmutils:
+    path: $MMIOT_ROOT/framework/src/mmutils
+  morselib:
+    path: $MMIOT_ROOT/framework/morselib
+  mm_shims:
+    path: $MMIOT_ROOT/framework/mm_shims
+  mmipal:
+    path: $MMIOT_ROOT/framework/src/mmipal
+  espressif/esp32-camera:
+    version: "^2.0.13"

@@ -1,0 +1,5 @@
+# Name,   Type, SubType, Offset,  Size, Flags
+# ESP32-C6 (4MB flash): allocate most space to NVS for local logging.
+nvs,      data, nvs,     0x9000,  0x1E0000,
+phy_init, data, phy,     ,        0x1000,
+factory,  app,  factory, ,        0x200000,

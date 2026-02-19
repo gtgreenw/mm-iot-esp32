@@ -1,0 +1,352 @@
+# ---------- Sensor unit S3 (XIAO ESP32-S3) — grouped menus ----------
+menu "Sensor unit S3"
+
+# ---- Connectivity ----
+menu "Connectivity (ESP-NOW, LED, BLE)"
+
+# 2.4 GHz channel for ESP-NOW. Must match the gateway (see dashboard /api/debug "espnow_channel").
+config ESPNOW_CHANNEL
+    int "ESP-NOW / WiFi channel (1-14)"
+    default 6
+    range 1 14
+    help
+        Channel for sending sensor packets when channel scan is disabled. Must match the gateway.
+
+config SENSOR_ESPNOW_CHANNEL_SCAN
+    bool "Dynamic ESP-NOW channel scan (find gateway by ACK)"
+    default y
+    help
+        When enabled, the node scans channels 1-13 on startup, sends a probe packet on each,
+        and locks onto the channel where the gateway ACKs. Disable to use a fixed channel (CONFIG_ESPNOW_CHANNEL).
+
+# GPIO for status LED (Blink button on gateway dashboard). -1 to disable.
+config SENSOR_LED_GPIO
+    int "LED GPIO for blink command (e.g. 21 for ESP32-S3 built-in)"
+    default 21
+    range -1 48
+    help
+        GPIO number for the node LED. Gateway dashboard "Blink" sends
+        ESP-NOW command to blink this LED. Set to -1 to disable.
+
+# BLE device logging: scan for nearby BLE devices and report in sensor packets (gateway BLE Log tab). Uses NimBLE.
+config SENSOR_BLE_LOG_ENABLE
+    bool "Enable BLE device logging"
+    default n
+    help
+        When enabled, the sensor scans for nearby BLE devices and includes
+        BLE stats in ESP-NOW packets. Uses NimBLE (Component config -> Bluetooth -> NimBLE).
+
+if SENSOR_BLE_LOG_ENABLE
+
+config SENSOR_BLE_SCAN_DURATION_SEC
+    int "BLE scan duration (seconds) per cycle"
+    default 20
+    range 1 60
+    help
+        How long each BLE scan runs. Scan runs for this many seconds, then
+        stops until the next cycle (see BLE scan period).
+
+config SENSOR_BLE_SCAN_PERIOD_SEC
+    int "BLE scan period (seconds) between scan start times"
+    default 60
+    range 5 300
+    help
+        Time between the start of one scan and the start of the next.
+        Scan runs for SENSOR_BLE_SCAN_DURATION_SEC, then waits the remainder
+        of this period before starting again (e.g. 20 s scan every 60 s).
+
+endif
+
+endmenu
+
+# ---- Motion ----
+menu "Motion sensor"
+
+# Motion sensor: GPIO (RCWL-0516) or UART mmWave (LD2410 / Seeed 24GHz for XIAO).
+choice SENSOR_MOTION_SOURCE
+    prompt "Motion sensor type"
+    default SENSOR_MOTION_GPIO_SRC
+    help
+        GPIO: RCWL-0516 or similar (digital OUT). mmWave: LD2410 / Seeed 24GHz
+        for XIAO over UART (115200 baud default); reports moving + stationary presence.
+
+config SENSOR_MOTION_GPIO_SRC
+    bool "GPIO (RCWL-0516)"
+
+config SENSOR_MOTION_MMWAVE
+    bool "UART mmWave (LD2410 / 24GHz Seeed XIAO)"
+    select SENSOR_MOTION_MMWAVE_LD2410
+    help
+        24GHz mmWave Human Static Presence over UART. Compatible with Seeed
+        24GHz mmWave for XIAO and HLK-LD2410. Connect sensor TX to MCU RX, RX to MCU TX.
+endchoice
+
+config SENSOR_MOTION_GPIO
+    int "Motion sensor GPIO (RCWL-0516 OUT). -1 to disable"
+    default 0
+    range -1 48
+    depends on SENSOR_MOTION_GPIO_SRC
+    help
+        GPIO number for the motion sensor OUT pin. Set to -1 to disable.
+
+config SENSOR_MOTION_CONFIRM_MS
+    int "Motion confirm time (ms). Require motion high this long before trigger. 0=no debounce."
+    default 500
+    range 0 3000
+    depends on SENSOR_MOTION_GPIO_SRC
+    help
+        Reduces false motion: only count a trigger after the GPIO has been
+        high for this many milliseconds. Try 400-800 if you get false triggers.
+
+config SENSOR_MOTION_MMWAVE_LD2410
+    bool
+    help
+        Hidden symbol: LD2410/mmWave motion driver is in use.
+
+if SENSOR_MOTION_MMWAVE
+
+# Keep mmWave on non-ADC pins so D0-D5 (ADC1) stay free for moisture/TDS.
+# XIAO ESP32-S3: ADC1 = D0-D5 (GPIO1-6). Use D6/D7 = GPIO17/18 for mmWave.
+config SENSOR_MMWAVE_UART_NUM
+    int "mmWave UART port number"
+    default 1
+    range 0 2
+    help
+        UART port used for LD2410 / 24GHz mmWave (e.g. 1 for second UART).
+
+config SENSOR_MMWAVE_TX_GPIO
+    int "mmWave UART TX GPIO (MCU TX -> sensor RX)"
+    default 17
+    range -1 48
+    help
+        Use non-ADC pins so moisture/TDS can use D0-D5 (ADC1). Default 17
+        (XIAO S3 D6) leaves ADC pins free. Do not use GPIO 1-10 (ADC1 on S3).
+
+config SENSOR_MMWAVE_RX_GPIO
+    int "mmWave UART RX GPIO (MCU RX <- sensor TX)"
+    default 18
+    range -1 48
+    help
+        Use non-ADC pins so moisture/TDS can use D0-D5. Default 18 (XIAO S3
+        D7) leaves ADC free. Do not use GPIO 1-10 (ADC1 on S3).
+
+config SENSOR_MMWAVE_BAUD
+    int "mmWave UART baud rate"
+    default 115200
+    range 9600 921600
+    help
+        Default 115200. Some Seeed 24GHz mmWave modules use 256000; set in menuconfig if needed.
+
+endif
+
+endmenu
+
+# ---- Environment (air: BME680, optional water temp: DS18B20) ----
+menu "Environment sensors (BME680, DS18B20)"
+
+# BME680 I2C wiring. Default: SDA=GPIO5, SCL=GPIO6.
+config SENSOR_BME_I2C_PORT
+    int "BME680 I2C port"
+    default 0
+    range 0 1
+    help
+        ESP-IDF I2C port used for BME680.
+
+config SENSOR_BME_I2C_SDA_GPIO
+    int "BME680 I2C SDA GPIO. -1 to disable"
+    default 5
+    range -1 48
+    help
+        GPIO for BME680 SDA. Default 5. Set to -1 to disable BME680.
+
+config SENSOR_BME_I2C_SCL_GPIO
+    int "BME680 I2C SCL GPIO. -1 to disable"
+    default 6
+    range -1 48
+    help
+        GPIO for BME680 SCL. Default 6. Set to -1 to disable BME680.
+
+config SENSOR_BME_I2C_FREQ_HZ
+    int "BME680 I2C frequency (Hz)"
+    default 100000
+    range 10000 1000000
+    help
+        I2C clock frequency for BME680.
+
+config SENSOR_BME_I2C_ADDR
+    hex "BME680 I2C address (0x76 or 0x77)"
+    default 0x77
+    range 0x76 0x77
+    help
+        I2C address for the BME680 sensor.
+
+# ---------- DS18B20 1-Wire temperature (e.g. fishtank probe) ----------
+# Red=VCC, Yellow=DATA, Black=GND. Use 4.7k between DATA and VCC.
+config SENSOR_DS18B20_GPIO
+    int "DS18B20 1-Wire data GPIO. -1 to disable"
+    default -1
+    range -1 48
+    help
+        GPIO for DS18B20 data line (1-Wire). Use a 4.7k pull-up resistor
+        between this pin and VCC. Temperature is used when BME680 is disabled.
+
+config SENSOR_DS18B20_OFFSET_TENTHS
+    int "DS18B20 calibration offset (tenths of °C). E.g. -25 = subtract 2.5°C"
+    default 0
+    range -100 100
+    depends on SENSOR_DS18B20_GPIO >= 0
+    help
+        Add this offset to the DS18B20 reading so it matches your BME (air)
+        when both sensors are side by side. If water temp reads high, use a
+        negative value (e.g. -20 for -2.0°C).
+
+endmenu
+
+# ---- Water & soil (TDS, Grove moisture) ----
+# ADC pins: XIAO S3 D0-D5 = GPIO1-6 = ADC1_CH0-5. Keep mmWave on 17/18 (D6/D7) so these stay free.
+menu "Water & soil (TDS, moisture)"
+
+# ---------- TDS (Total Dissolved Solids) water conductivity ----------
+# Gikfun-style: 0–2.3V analog, 0–1000 ppm. XIAO S3: D2=ADC1_CH2 typical.
+config SENSOR_TDS_ENABLE
+    bool "Enable TDS sensor (water conductivity, 0–1000 ppm)"
+    default n
+    help
+        Analog TDS sensor (e.g. Gikfun) on one ADC1 channel. Output 0–2.3V
+        maps to 0–1000 ppm. Use for aquarium/hydroponics. Do not conflict with moisture channels.
+
+config SENSOR_TDS_ADC_CHANNEL
+    int "TDS sensor — ADC1 channel (XIAO S3: D2=2)"
+    default 2
+    depends on SENSOR_TDS_ENABLE
+    range 0 6
+    help
+        ADC1 channel for TDS analog output. XIAO S3 D2 = ADC1_CH2. Must not
+        conflict with moisture channels if both are enabled.
+
+config SENSOR_TDS_PPM_PER_VOLT
+    int "TDS scale: ppm per volt (0–2.3V → 0–1000 ppm ⇒ ~435)"
+    default 435
+    depends on SENSOR_TDS_ENABLE
+    range 300 600
+    help
+        Converts voltage to ppm. 1000 ppm / 2.3 V ≈ 435. Adjust for calibration.
+
+# ---------- Grove Capacitive Moisture Sensors (up to 4 channels) ----------
+# XIAO ESP32-S3: D0=GPIO1=ADC1_CH0, D1=GPIO2=ADC1_CH1 (Arduino pins_arduino.h).
+config SENSOR_MOISTURE_ENABLE
+    bool "Enable Grove Capacitive Moisture Sensors"
+    default n
+    help
+        Master switch for soil moisture sensing. Supports up to 4 Grove
+        capacitive sensors on separate ADC1 channels.
+
+config SENSOR_MOISTURE_NUM_CHANNELS
+    int "Number of moisture sensor channels (1-4)"
+    default 2
+    depends on SENSOR_MOISTURE_ENABLE
+    range 1 4
+    help
+        How many Grove moisture sensors are connected. XIAO ESP32-S3: D0=ch0, D1=ch1.
+
+config SENSOR_MOISTURE_CH0_ADC
+    int "Moisture sensor 1 — ADC1 channel (D0=0 on XIAO ESP32-S3)"
+    default 0
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 6
+    help
+        ADC1 channel for the first moisture sensor. D0 on XIAO ESP32-S3 is GPIO1 = ADC1_CH0.
+
+config SENSOR_MOISTURE_CH1_ADC
+    int "Moisture sensor 2 — ADC1 channel (D1=1 on XIAO ESP32-S3)"
+    default 1
+    depends on SENSOR_MOISTURE_ENABLE && SENSOR_MOISTURE_NUM_CHANNELS > 1
+    range 0 6
+    help
+        ADC1 channel for the second moisture sensor. D1 on XIAO ESP32-S3 is GPIO2 = ADC1_CH1.
+
+config SENSOR_MOISTURE_CH2_ADC
+    int "Moisture sensor 3 — ADC1 channel"
+    default 3
+    depends on SENSOR_MOISTURE_ENABLE && SENSOR_MOISTURE_NUM_CHANNELS > 2
+    range 0 6
+    help
+        ADC1 channel for the third moisture sensor.
+
+config SENSOR_MOISTURE_CH3_ADC
+    int "Moisture sensor 4 — ADC1 channel"
+    default 0
+    depends on SENSOR_MOISTURE_ENABLE && SENSOR_MOISTURE_NUM_CHANNELS > 3
+    range 0 6
+    help
+        ADC1 channel for the fourth moisture sensor.
+
+# Per-channel two-point calibration: raw ADC at "dry" (0%) and "wet" (100%).
+# Higher raw = drier. Use serial log "raw=[...]" to see values; set DRY to raw in air, WET to raw in water.
+config SENSOR_MOISTURE_RAW_DRY_CH0
+    int "Ch0 ADC raw at dry (0%) — e.g. sensor in air"
+    default 2700
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 0 when dry. From log raw=[r0,...].
+
+config SENSOR_MOISTURE_RAW_WET_CH0
+    int "Ch0 ADC raw at wet (100%) — e.g. sensor in water"
+    default 1100
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 0 when in water. Must be < RAW_DRY_CH0. ~1080 in cup → 1100 gives 100%.
+
+config SENSOR_MOISTURE_RAW_DRY_CH1
+    int "Ch1 ADC raw at dry (0%)"
+    default 2700
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 1 (e.g. ch2) when dry. From log raw=[...,r1,...].
+
+config SENSOR_MOISTURE_RAW_WET_CH1
+    int "Ch1 ADC raw at wet (100%)"
+    default 1100
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 1 when in water. Must be < RAW_DRY_CH1. ~1050 in cup → 1100 gives 100%.
+
+config SENSOR_MOISTURE_RAW_DRY_CH2
+    int "Ch2 ADC raw at dry (0%)"
+    default 2700
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 2 when dry.
+
+config SENSOR_MOISTURE_RAW_WET_CH2
+    int "Ch2 ADC raw at wet (100%)"
+    default 1000
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 2 when in water.
+
+config SENSOR_MOISTURE_RAW_DRY_CH3
+    int "Ch3 ADC raw at dry (0%)"
+    default 2700
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 3 when dry.
+
+config SENSOR_MOISTURE_RAW_WET_CH3
+    int "Ch3 ADC raw at wet (100%)"
+    default 1000
+    depends on SENSOR_MOISTURE_ENABLE
+    range 0 4095
+    help
+        Raw ADC for channel 3 when in water.
+
+endmenu
+
+endmenu

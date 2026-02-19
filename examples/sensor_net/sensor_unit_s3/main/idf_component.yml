@@ -1,0 +1,3 @@
+# ESP-NOW-only sensor unit (no HaLow, no HTTP)
+dependencies:
+  idf: ">=5.1.0"

@@ -1,0 +1,30 @@
+# Camera sensor unit (XIAO ESP32-S3-Sense): camera always on, optional LED for gateway blink command
+config ESPNOW_CHANNEL
+    int "ESP-NOW / WiFi channel (1-14)"
+    default 6
+    range 1 14
+    help
+        Channel for ESP-NOW when channel scan is disabled. Must match the gateway (2G-only: router's 2.4 GHz channel).
+
+config SENSOR_ESPNOW_CHANNEL_SCAN
+    bool "Dynamic ESP-NOW channel scan (find gateway by ACK)"
+    default y
+    help
+        When enabled, the node scans channels 1-13 on startup, sends a probe packet on each,
+        and locks onto the channel where the gateway ACKs (< 1 s). Handles router channel
+        changes when the gateway uses 2.4 GHz AP+STA backhaul. Last channel is stored in NVS.
+        Disable to use a fixed channel (CONFIG_ESPNOW_CHANNEL).
+
+config SENSOR_CAMERA_ENABLE
+    bool "Enable camera stream (always on for this firmware)"
+    default y
+    help
+        Camera is always enabled for this firmware. Serves MJPEG at http://<sensor-ip>/stream.
+
+config SENSOR_LED_GPIO
+    int "LED GPIO for blink command (2 on XIAO Sense; SD uses 21). -1 to disable"
+    default 2
+    range -1 48
+    help
+        GPIO number for the node LED. Gateway dashboard "Blink" sends
+        ESP-NOW command to blink this LED. Set to -1 to disable.
